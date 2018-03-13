@@ -1,0 +1,67 @@
+digraph {
+	drfree [label=drfree]
+	drfree -> drfree_last_date_of_month
+	drfree_last_date_of_month [label=drfree_last_date_of_month]
+	drfree_last_date_of_month -> rf
+	mdata [label=mdata]
+	mdata -> mdata1
+	indcode [label=indcode]
+	indcode -> mdata1
+	manal [label=manal]
+	manal -> mdata1
+	mprc [label=mprc]
+	mprc -> mdata1
+	mdata1 [label=mdata1]
+	mdata1 -> mdata2
+	mdata1 -> temp_fsize
+	mdata1 -> mom
+	ftvol [label=ftvol]
+	ftvol -> ftvol1
+	mom [label=mom]
+	mom -> mom1
+	mom -> mom2
+	ftvol1 [label=ftvol1]
+	ftvol1 -> mom1
+	mom1 [label=mom1]
+	mom1 -> nbavg
+	nbavg [label=nbavg]
+	nbavg -> result_nbavg
+	fsize [label=fsize]
+	fsize -> fsize1
+	fsize1 [label=fsize1]
+	fsize1 -> mdata2
+	fsize1 -> temp_fsize
+	mom2 [label=mom2]
+	mom2 -> mdata2
+	mdata2 [label=mdata2]
+	mdata2 -> mdata3
+	mdata3 [label=mdata3]
+	mdata3 -> oneway
+	mdata3 -> twoway
+	oneway [label=oneway]
+	oneway -> oneway1
+	oneway1 [label=oneway1]
+	oneway1 -> oneway2
+	rf [label=rf]
+	rf -> oneway2
+	rf -> twoway2
+	oneway2 [label=oneway2]
+	oneway2 -> oneway3
+	oneway3 [label=oneway3]
+	oneway3 -> result_1way
+	twoway [label=twoway]
+	twoway -> twoway2
+	twoway -> twoway1
+	twoway2 [label=twoway2]
+	twoway2 -> twoway3
+	twoway3 [label=twoway3]
+	twoway3 -> result_2way
+	twoway1 [label=twoway1]
+	twoway1 -> twoway4
+	ff5ew [label=ff5ew]
+	ff5ew -> twoway4
+	ff5vw [label=ff5vw]
+	ff5vw -> twoway4
+	twoway4 [label=twoway4]
+	twoway4 -> result_rfac
+}

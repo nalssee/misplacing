@@ -1,0 +1,10 @@
+.vscode/
+refs/
+venv/
+__pycache__/
+
+**/*.csv
+**/*.db 
+**/*.xlsx
+**/*.sas7bdat
+ 
