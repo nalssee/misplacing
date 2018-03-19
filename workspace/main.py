@@ -239,11 +239,11 @@ def twoway(rs):
     for i in range(2, 5):
         yield build(rs, 3, i, pn_frate=True, pn_momret=True)
     for i in range(2, 8):
-        yield build(rs1, 6, i, pn_frate=True, pn_momret=True)
+        yield build(rs, 6, i, pn_frate=True, pn_momret=True)
     for i in range(2, 11):
-        yield build(rs1, 9, i, pn_frate=True, pn_momret=True)
+        yield build(rs, 9, i, pn_frate=True, pn_momret=True)
     for i in range(2, 14):
-        yield build(rs1, 12, i, pn_frate=True, pn_momret=True)
+        yield build(rs, 12, i, pn_frate=True, pn_momret=True)
 
 
 
@@ -394,25 +394,25 @@ def rfac(rs):
     high = get(rs, 4, 4)
     low = get(rs, 4, 1)
      
-    rs1 = Rows(regtable(diff(high, low, 'ewret'), 'dret ~  mf'))
-    rs1.set('j', high[0].j)
-    rs1.set('k', high[0].k)
-    yield from rs1
-    yield emptyrow(rs1[0])
+    # rs1 = Rows(regtable(diff(high, low, 'ewret'), 'dret ~  mf'))
+    # rs1.set('j', high[0].j)
+    # rs1.set('k', high[0].k)
+    # yield from rs1
+    # yield emptyrow(rs1[0])
 
-    rs1 = Rows(regtable(diff(high, low, 'ewret'), 'dret ~  mf + smb + hml'))
-    rs1.set('j', high[0].j)
-    rs1.set('k', high[0].k)
-    yield from rs1
-    yield emptyrow(rs1[0])
+    # rs1 = Rows(regtable(diff(high, low, 'ewret'), 'dret ~  mf + smb + hml'))
+    # rs1.set('j', high[0].j)
+    # rs1.set('k', high[0].k)
+    # yield from rs1
+    # yield emptyrow(rs1[0])
 
-    rs1 = Rows(regtable(diff(high, low, 'ewret'), 'dret ~  mf + smb + hml + rmw + cma'))
-    rs1.set('j', high[0].j)
-    rs1.set('k', high[0].k)
-    yield from rs1
+    # rs1 = Rows(regtable(diff(high, low, 'ewret'), 'dret ~  mf + smb + hml + rmw + cma'))
+    # rs1.set('j', high[0].j)
+    # rs1.set('k', high[0].k)
+    # yield from rs1
 
-    yield emptyrow(rs1[0])
-    yield emptyrow(rs1[0])
+    # yield emptyrow(rs1[0])
+    # yield emptyrow(rs1[0])
 
     rs1 = Rows(regtable(diff(high, low, 'vwret'), 'dret ~  mfv'))
     rs1.set('j', high[0].j)
@@ -432,8 +432,8 @@ def rfac(rs):
     yield from rs1
     yield emptyrow(rs1[0])
 
-    yield emptyrow(rs1[0])
-    yield emptyrow(rs1[0])
+    # yield emptyrow(rs1[0])
+    # yield emptyrow(rs1[0])
     yield emptyrow(rs1[0])
     yield emptyrow(rs1[0])
 
@@ -496,6 +496,14 @@ def compute_rf(rs):
     r.rf = comp_rf(r0.rf / 100, r1.rf / 100)
     return r 
 
+@perr
+def desc01(rs):
+    cols = ['frate', 'size','ivol1', 'tvol12', 'illiq', 'prc', 'zero', 'anal', 'cvol']
+    rs = rs.where(lambda r: isnum(*(r[col] for col in cols)))
+    print(len(rs))
+    print(rs.df()[cols].corr('spearman').to_csv('foo.csv'))
+
+
     
 # mometum computation
 # 상장이후 폐지 각각 6개월 제거, 가격 1000원 미만 제거
@@ -521,6 +529,7 @@ if __name__ == "__main__":
         Load(fnguide('fsize.xlsx', ['tsize', 'fsize']), name='fsize', fn=yyyymm1),
         Load(fnguide('ftvol.xlsx', ['nb_ind', 'nb_indus', 'nb_foreign']),
              name='ftvol', fn=yyyymm1),
+        Load('dset.csv', fn={'yyyymm': lambda r: dmath(r.yyyymm, '%Y%m', '%Y-%m')}),
 
         # Load(fnguide('ddata.csv', ['ret', 'size', 'tvol']),
         #      name='ddata', fn=yyyymm1),
@@ -546,7 +555,7 @@ if __name__ == "__main__":
         ),
 
         Map(compute_mom, 'mdata1', name='mom', group='id', order='yyyymm', 
-            where=lambda r: r.size > 0 and r.tvol >= 0),
+            where=lambda r: r.size > 0 and r.tvol >= 0 and r.yyyymm >= '1999-01'),
 
         # ftvol 3, 6, 9, 12 개월로 계산해 봅시다 
         Map(compute_aggtvol, 'ftvol', name='ftvol1', group='id', order='yyyymm',
@@ -565,9 +574,8 @@ if __name__ == "__main__":
             where=lambda r: (r.mkt == 'kospi' or r.mkt == 'kosdaq') and isnum(r.momret), 
             name='nbavg'),
 
-        Map(compute_tvag_nbavg, 'nbavg', group='j, pno', 
-            where=lambda r: r.yyyymm >= '2000-01' and r.yyyymm <= '2015-12',
-            name='result_nbavg'),
+        Map(compute_tvag_nbavg, 'nbavg', group='j, pno', name='result_nbavg', 
+            where=lambda r: r.yyyymm >= '2000-01' and r.yyyymm <= '2015-12'),
 
         Map({'frate': lambda r: (r.fsize / r.tsize) if isnum(r.fsize) else 0}, 
             'fsize', name='fsize1'),
@@ -579,8 +587,7 @@ if __name__ == "__main__":
             name='temp_fsize'
         ),
 
-        Map(lambda r: r, 'mom', name='mom2', 
-            where=lambda r: r.yyyymm >= '1998-01'),
+        Map(lambda r: r, 'mom', name='mom2'), 
 
         Join(
             ['mom2', 'mom, id, yyyymm, momret, mkt', 'id, yyyymm'], 
@@ -629,7 +636,7 @@ if __name__ == "__main__":
             'oneway2', name='oneway3'),
 
         Map(result_1way, 'oneway3', group='j, k', name='result_1way', 
-            where=lambda r: r.yyyymm >= '2001-02' and r.yyyymm <= '2015-12'),
+            where=lambda r: r.yyyymm >='2001-02' and r.yyyymm <= '2015-12'),
 
         # Map(rfac1, 'oneway2', group='j, k', name='result_rfac',
         #     where=lambda r: r.yyyymm >= '2001-01' and r.yyyymm <= '2015-12'),
@@ -651,7 +658,7 @@ if __name__ == "__main__":
 
         # result02 
         Map(result_2way, 'twoway3', group='j, k', name='result_2way', 
-            where=lambda r: r.yyyymm >= '2001-02' and r.yyyymm <= '2015-12'),
+            where=lambda r: r.yyyymm >= '2001-05' and r.yyyymm <= '2016-03'),
     
         # risk factor 로 설명 되는지 한번 살펴보자 
         # TODO: rf 새걸로 써야 해
@@ -662,15 +669,28 @@ if __name__ == "__main__":
             name='twoway4'
         ),
 
-        Map(rfac, 'twoway4', group='j, k', name='result_rfac',
-            where=lambda r: r.yyyymm >= '2001-02' and r.yyyymm <= '2015-12'),
+        Map(rfac, 'twoway4', group='j, k', name='result_rfac'),
 
-        'Done'
+
+        # 변수별 상관계수나 한번 보자 
+        Map(lambda r: r, 'dset', where=lambda r: r.mom==3, name='dset01'),
+        Join(
+            ['dset01', '*', 'id, yyyymm'],
+            ['fsize1', 'frate', 'id, yyyymm'],
+            name='dset02'
+        ),
+        
+        # Map(desc01, 'dset02', group='*',
+        #     where=lambda r: r.yyyymm >= '2000-01' and r.yyyymm <= '2015-12', 
+        #     name='temp'),
+
+        "Done"
+
 
     ) 
     # tocsv('result_nbavg')
-    # tocsv('result_1way')
-    # tocsv('result_2way')
+    # tocsv('result_1way', order='ret')
+    # tocsv('result_2way', order='ret, j')
 
 
 

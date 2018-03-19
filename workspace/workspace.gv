@@ -12,8 +12,8 @@ digraph {
 	mprc [label=mprc]
 	mprc -> mdata1
 	mdata1 [label=mdata1]
-	mdata1 -> mdata2
 	mdata1 -> temp_fsize
+	mdata1 -> mdata2
 	mdata1 -> mom
 	ftvol [label=ftvol]
 	ftvol -> ftvol1
@@ -30,6 +30,7 @@ digraph {
 	fsize -> fsize1
 	fsize1 [label=fsize1]
 	fsize1 -> mdata2
+	fsize1 -> dset02
 	fsize1 -> temp_fsize
 	mom2 [label=mom2]
 	mom2 -> mdata2
@@ -50,8 +51,8 @@ digraph {
 	oneway3 [label=oneway3]
 	oneway3 -> result_1way
 	twoway [label=twoway]
-	twoway -> twoway2
 	twoway -> twoway1
+	twoway -> twoway2
 	twoway2 [label=twoway2]
 	twoway2 -> twoway3
 	twoway3 [label=twoway3]
@@ -64,4 +65,8 @@ digraph {
 	ff5vw -> twoway4
 	twoway4 [label=twoway4]
 	twoway4 -> result_rfac
+	dset [label=dset]
+	dset -> dset01
+	dset01 [label=dset01]
+	dset01 -> dset02
 }
